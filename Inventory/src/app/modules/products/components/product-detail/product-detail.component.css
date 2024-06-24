@@ -1,0 +1,17 @@
+.product-detail {
+    margin: 20px;
+  }
+  
+  h2 {
+    margin-bottom: 20px;
+  }
+  
+  div {
+    margin-bottom: 10px;
+  }
+  
+  img {
+    max-width: 200px;
+    height: auto;
+  }
+  

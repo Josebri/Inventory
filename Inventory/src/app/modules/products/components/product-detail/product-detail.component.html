@@ -1,0 +1,25 @@
+<div class="product-detail" *ngIf="product">
+    <h2>Product Details</h2>
+    <div>
+      <strong>Code:</strong> {{ product.codigo }}
+    </div>
+    <div>
+      <strong>Category:</strong> {{ product.categoria }}
+    </div>
+    <div>
+      <strong>Description:</strong> {{ product.descripcion }}
+    </div>
+    <div>
+      <strong>Detailed Description:</strong> {{ product.descripcionDetallada }}
+    </div>
+    <div>
+      <strong>Brand:</strong> {{ product.marca }}
+    </div>
+    <div>
+      <strong>Price:</strong> {{ product.precio }}
+    </div>
+    <div>
+      <strong>Photo:</strong> <img [src]="product.foto" alt="Product Photo">
+    </div>
+  </div>
+  
