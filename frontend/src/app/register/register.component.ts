@@ -1,50 +1,51 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-register',
-  standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [ReactiveFormsModule, CommonModule]
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterModule]
 })
 export class RegisterComponent {
   registerForm: FormGroup;
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private dataService: DataService
   ) {
     this.registerForm = this.fb.group({
-      username: ['', [Validators.required]],
+      username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]],
-      phone: ['', [Validators.required]],
-      profile: ['', [Validators.required]]
+      phone: ['', Validators.required],
+      profile: ['', Validators.required],
+      password: ['', Validators.required]
     });
   }
 
-  async onSubmit() {
+  async onSubmit(): Promise<void> {
     if (this.registerForm.valid) {
       try {
-        const response = await fetch('http://localhost:3000/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(this.registerForm.value)
-        });
-        
-        if (!response.ok) {
-          throw new Error('Registration error');
-        }
-
-        this.router.navigate(['/login']);
+        const response = await this.dataService.register(
+          this.registerForm.value.username,
+          this.registerForm.value.email,
+          this.registerForm.value.phone,
+          this.registerForm.value.profile,
+          this.registerForm.value.password
+        );
+        console.log('Registration successful', response);
+        this.router.navigate(['/login']); // Redirigir a la página de login después del registro exitoso
       } catch (error) {
-        console.error('Registration error', error);
+        console.error('Registration failed', error);
       }
     }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/login']);
   }
 }
