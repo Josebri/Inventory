@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Inventory": {
+    "inventory": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -64,10 +64,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Inventory:build:production"
+              "buildTarget": "inventory:build:production"
             },
             "development": {
-              "buildTarget": "Inventory:build:development"
+              "buildTarget": "inventory:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -99,6 +99,6 @@
     }
   },
   "cli": {
-    "analytics": "2299df41-ebcd-4b83-afb6-bba232b1bb26"
+    "analytics": "1ec33e99-7c93-439e-a7b0-8dc5ae533f35"
   }
 }

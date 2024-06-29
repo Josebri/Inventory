@@ -1,19 +1,16 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { ProductsModule } from './modules/products/products.module';
+// src/app/app.module.ts
+import { enableProdMode, importProvidersFrom } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { environment } from '../environments/envionment';
 
-@NgModule({
-  declarations: [
-    AppComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ProductsModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
+if (environment.production) {
+  enableProdMode();
+}
+
+export class AppModule {
+  static providers = [
+    importProvidersFrom(
+      RouterModule.forRoot([])
+    )
+  ];
+}
