@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "inventory": {
+    "front": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/inventory",
+            "outputPath": "dist/front",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -62,15 +62,12 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "proxyConfig": "proxy.conf.json"
-          },
           "configurations": {
             "production": {
-              "buildTarget": "inventory:build:production"
+              "buildTarget": "front:build:production"
             },
             "development": {
-              "buildTarget": "inventory:build:development"
+              "buildTarget": "front:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -102,6 +99,6 @@
     }
   },
   "cli": {
-    "analytics": "1ec33e99-7c93-439e-a7b0-8dc5ae533f35"
+    "analytics": "c5614255-bde1-4aa3-8017-9366d9ca758b"
   }
 }
