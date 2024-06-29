@@ -2,19 +2,21 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const cors = require('cors');
 const { Pool } = require('pg');
 const app = express();
 
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
-  database: 'inventory-db',
-  password: '29930427',
+  database: 'Inventory',
+  password: '12bote34',
   port: 5432,
 });
 
 const SECRET_KEY = 'your_secret_key';
 
+app.use(cors()); 
 app.use(bodyParser.json());
 
 // Middleware de autenticación
@@ -35,7 +37,6 @@ const authenticate = (req, res, next) => {
     res.status(401).json({ message: 'Authorization header not provided' });
   }
 };
-
 
 // Registro de usuarios
 app.post('/register', async (req, res) => {

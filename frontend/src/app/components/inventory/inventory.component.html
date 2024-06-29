@@ -1,0 +1,31 @@
+<div class="container">
+    <h2>Inventory</h2>
+    <div class="form-group">
+      <label for="location">Select Location</label>
+      <select id="location" [(ngModel)]="selectedLocation" name="location" class="form-control" (change)="fetchInventory()">
+        <option *ngFor="let location of locations" [value]="location.id">{{ location.name }}</option>
+      </select>
+    </div>
+    <form (ngSubmit)="addInventory()">
+      <div class="form-group">
+        <label for="product_id">Product ID</label>
+        <input type="text" id="product_id" [(ngModel)]="newInventory.product_id" name="product_id" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="location_id">Location ID</label>
+        <input type="text" id="location_id" [(ngModel)]="newInventory.location_id" name="location_id" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="quantity">Quantity</label>
+        <input type="number" id="quantity" [(ngModel)]="newInventory.quantity" name="quantity" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Inventory</button>
+    </form>
+    <ul class="list-group mt-4">
+      <li *ngFor="let item of inventory" class="list-group-item">
+        Product ID: {{ item.product_id }}, Quantity: {{ item.quantity }}, Needs Reorder: {{ item.needs_reorder }}
+        <button class="btn btn-danger btn-sm float-right" (click)="deleteInventory(item.product_id, item.location_id)">Delete</button>
+      </li>
+    </ul>
+  </div>
+  
