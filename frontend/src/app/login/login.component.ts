@@ -38,7 +38,7 @@ export class LoginComponent {
           this.router.navigate(['/admin']);
         } else {
           // Redirigir a otra ruta para usuarios normales
-          // this.router.navigate(['/user/home']); // Ajusta según tus necesidades
+          this.router.navigate(['/user/home']); // Ajusta según tus necesidades
         }
       } catch (error) {
         console.error('Login failed', error);
