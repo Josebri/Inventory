@@ -119,7 +119,7 @@ app.get('/users/locations', authenticate, async (req, res) => {
   try {
     const userId = req.user.id;
     const locations = await pool.query(
-      'SELECT l.id_location, l.name FROM users_locations ul ' +
+      'SELECT l.id_location, l.name, l.address FROM users_locations ul ' +
       'JOIN locations l ON ul.id_location = l.id_location ' +
       'WHERE ul.id_users = $1',
       [userId]
@@ -151,11 +151,11 @@ app.get('/products/:id', authenticate, async (req, res) => {
 });
 
 app.post('/products', authenticate, async (req, res) => {
-  const { name, brand, quantity, reorder_quantity, image, supplier, price } = req.body;
+  const { name, brand, reorder_quantity, image, supplier, price } = req.body;
   try {
     const newProduct = await pool.query(
-      'INSERT INTO products (name, brand, quantity, reorder_quantity, image, supplier, price) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [name, brand, quantity, reorder_quantity, image, supplier, price]
+      'INSERT INTO products (name, brand, reorder_quantity, image, supplier, price) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [name, brand, reorder_quantity, image, supplier, price]
     );
     res.status(201).json(newProduct.rows[0]);
   } catch (error) {
@@ -164,11 +164,11 @@ app.post('/products', authenticate, async (req, res) => {
 });
 
 app.put('/products/:id', authenticate, async (req, res) => {
-  const { name, brand, quantity, reorder_quantity, image, supplier, price } = req.body;
+  const { name, brand, reorder_quantity, image, supplier, price } = req.body;
   try {
     const updatedProduct = await pool.query(
-      'UPDATE products SET name = $1, brand = $2, quantity = $3, reorder_quantity = $4, image = $5, supplier = $6, price = $7 WHERE id = $8 RETURNING *',
-      [name, brand, quantity, reorder_quantity, image, supplier, price, req.params.id]
+      'UPDATE products SET name = $1, brand = $2, reorder_quantity = $3, image = $4, supplier = $5, price = $6 WHERE id = $7 RETURNING *',
+      [name, brand, reorder_quantity, image, supplier, price, req.params.id]
     );
     if (updatedProduct.rows.length === 0) return res.status(404).json({ message: 'Product not found' });
     res.status(200).json(updatedProduct.rows[0]);
@@ -208,11 +208,11 @@ app.get('/locations/:id', authenticate, async (req, res) => {
 });
 
 app.post('/locations', authenticate, async (req, res) => {
-  const { name } = req.body;
+  const { name, address } = req.body;
   try {
     const newLocation = await pool.query(
-      'INSERT INTO locations (name) VALUES ($1) RETURNING *',
-      [name]
+      'INSERT INTO locations (name, address) VALUES ($1) RETURNING *',
+      [name, address]
     );
     res.status(201).json(newLocation.rows[0]);
   } catch (error) {
@@ -221,11 +221,11 @@ app.post('/locations', authenticate, async (req, res) => {
 });
 
 app.put('/locations/:id', authenticate, async (req, res) => {
-  const { name } = req.body;
+  const { name, address } = req.body;
   try {
     const updatedLocation = await pool.query(
-      'UPDATE locations SET name = $1 WHERE id_location = $2 RETURNING *',
-      [name, req.params.id]
+      'UPDATE locations SET name = $1, address = $2 WHERE id_location = $3 RETURNING *',
+      [name, address, req.params.id]
     );
     if (updatedLocation.rows.length === 0) return res.status(404).json({ message: 'Location not found' });
     res.status(200).json(updatedLocation.rows[0]);
