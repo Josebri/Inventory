@@ -22,10 +22,10 @@ app.use(bodyParser.json());
 // Middleware de autenticación
 const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  
+
   if (authHeader) {
     const token = authHeader.split(' ')[1];
-    
+
     jwt.verify(token, SECRET_KEY, (err, user) => {
       if (err) {
         return res.status(403).json({ message: 'Token verification failed', error: err.message });
@@ -130,7 +130,7 @@ app.get('/users/locations', authenticate, async (req, res) => {
   }
 });
 
-// CRUD de productos
+// CRUD de productos para el administrador
 app.get('/products', authenticate, async (req, res) => {
   try {
     const products = await pool.query('SELECT * FROM products');
@@ -187,7 +187,7 @@ app.delete('/products/:id', authenticate, async (req, res) => {
   }
 });
 
-// CRUD de ubicaciones
+// CRUD de almacenes
 app.get('/locations', authenticate, async (req, res) => {
   try {
     const locations = await pool.query('SELECT * FROM locations');
@@ -211,7 +211,7 @@ app.post('/locations', authenticate, async (req, res) => {
   const { name, address } = req.body;
   try {
     const newLocation = await pool.query(
-      'INSERT INTO locations (name, address) VALUES ($1) RETURNING *',
+      'INSERT INTO locations (name, address) VALUES ($1, $2) RETURNING *',
       [name, address]
     );
     res.status(201).json(newLocation.rows[0]);
@@ -239,6 +239,68 @@ app.delete('/locations/:id', authenticate, async (req, res) => {
     const deletedLocation = await pool.query('DELETE FROM locations WHERE id_location = $1 RETURNING *', [req.params.id]);
     if (deletedLocation.rows.length === 0) return res.status(404).json({ message: 'Location not found' });
     res.status(204).end();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Asignar productos a almacenes
+app.post('/locations/:locationId/products/:productId', authenticate, async (req, res) => {
+  const { locationId, productId } = req.params;
+  const { quantity } = req.body;
+
+  try {
+    const result = await pool.query(
+      'INSERT INTO product_locations (product_id, location_id, quantity) VALUES ($1, $2, $3) ON CONFLICT (product_id, location_id) DO UPDATE SET quantity = EXCLUDED.quantity RETURNING *',
+      [productId, locationId, quantity]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Obtener cantidad de productos por almacén
+app.get('/locations/:locationId/products', authenticate, async (req, res) => {
+  const { locationId } = req.params;
+
+  try {
+    const products = await pool.query(
+      `SELECT p.id, p.name, pl.quantity FROM product_locations pl
+      JOIN products p ON pl.product_id = p.id
+      WHERE pl.location_id = $1`,
+      [locationId]
+    );
+
+    if (products.rows.length === 0) {
+      return res.status(200).json({ message: 'No products found in this location' });
+    }
+
+    res.status(200).json(products.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Ruta para buscar productos por nombre y obtener la información de su ubicación
+app.get('/search/products', authenticate, async (req, res) => {
+  const { name } = req.query;
+  
+  try {
+    const products = await pool.query(
+      `SELECT p.id, p.name, pl.quantity, l.name as location_name 
+      FROM products p
+      JOIN product_locations pl ON p.id = pl.product_id
+      JOIN locations l ON pl.location_id = l.id_location
+      WHERE p.name ILIKE $1`,
+      [`%${name}%`]
+    );
+
+    if (products.rows.length === 0) {
+      return res.status(200).json({ message: 'No products found' });
+    }
+
+    res.status(200).json(products.rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

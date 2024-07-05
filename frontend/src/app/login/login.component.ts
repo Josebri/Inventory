@@ -1,16 +1,15 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
-import { DataService } from '../services/data.service';
 import { CommonModule } from '@angular/common';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   standalone: true,
-  imports: [RouterModule, ReactiveFormsModule, HttpClientModule, CommonModule]
+  imports: [RouterModule, ReactiveFormsModule, CommonModule]
 })
 export class LoginComponent {
   loginForm: FormGroup;
@@ -26,31 +25,30 @@ export class LoginComponent {
     });
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.loginForm.valid) {
-      this.dataService.login(
-        this.loginForm.value.username,
-        this.loginForm.value.password
-      ).subscribe(
-        (response: any) => {
-          console.log('Login successful', response);
+      try {
+        const response = await this.dataService.login(
+          this.loginForm.value.username,
+          this.loginForm.value.password
+        );
 
-          // Guardar el token en el almacenamiento local
-          localStorage.setItem('token', response.token);
+        console.log('Login successful', response);
 
-          // Verificar el perfil del usuario
-          if (response.profile === 'admin') {
-            // Redirigir a la ruta de administrador
-            this.router.navigate(['/admin']);
-          } else {
-            // Redirigir a otra ruta para usuarios normales
-            this.router.navigate(['/admin']); // Ajusta según tus necesidades
-          }
-        },
-        (error) => {
-          console.error('Login failed', error);
+        // Guardar el token en el almacenamiento local
+        localStorage.setItem('token', response.token);
+
+        // Verificar el perfil del usuario
+        if (response.profile === 'admin') {
+          // Redirigir a la ruta de administrador
+          this.router.navigate(['/admin']);
+        } else {
+          // Redirigir a otra ruta para usuarios normales
+          this.router.navigate(['/home']); // Ajusta según tus necesidades
         }
-      );
+      } catch (error) {
+        console.error('Login failed', error);
+      }
     }
   }
 
