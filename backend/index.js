@@ -54,7 +54,6 @@ app.post('/register', async (req, res) => {
   }
 });
 
-
 // Login
 app.post('/login', async (req, res) => {
   const { usernameOrEmail, password } = req.body;
@@ -152,11 +151,11 @@ app.get('/products/:id', authenticate, async (req, res) => {
 });
 
 app.post('/products', authenticate, async (req, res) => {
-  const { name, brand, reorder_quantity, image, supplier, price } = req.body;
+  const { name, brand, reorder_quantity, supplier, price } = req.body;
   try {
     const newProduct = await pool.query(
-      'INSERT INTO products (name, brand, reorder_quantity, image, supplier, price, id_users) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [name, brand, reorder_quantity, image, supplier, price, req.user.id]
+      'INSERT INTO products (name, brand, reorder_quantity, supplier, price, id_users) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [name, brand, reorder_quantity, supplier, price, req.user.id]
     );
     res.status(201).json(newProduct.rows[0]);
   } catch (error) {
@@ -165,11 +164,11 @@ app.post('/products', authenticate, async (req, res) => {
 });
 
 app.put('/products/:id', authenticate, async (req, res) => {
-  const { name, brand, reorder_quantity, image, supplier, price } = req.body;
+  const { name, brand, reorder_quantity, supplier, price } = req.body;
   try {
     const updatedProduct = await pool.query(
-      'UPDATE products SET name = $1, brand = $2, reorder_quantity = $3, image = $4, supplier = $5, price = $6 WHERE id = $7 AND id_users = $8 RETURNING *',
-      [name, brand, reorder_quantity, image, supplier, price, req.params.id, req.user.id]
+      'UPDATE products SET name = $1, brand = $2, reorder_quantity = $3, supplier = $4, price = $5 WHERE id = $6 AND id_users = $7 RETURNING *',
+      [name, brand, reorder_quantity, supplier, price, req.params.id, req.user.id]
     );
     if (updatedProduct.rows.length === 0) return res.status(404).json({ message: 'Product not found' });
     res.status(200).json(updatedProduct.rows[0]);
@@ -180,13 +179,23 @@ app.put('/products/:id', authenticate, async (req, res) => {
 
 app.delete('/products/:id', authenticate, async (req, res) => {
   try {
-    const deletedProduct = await pool.query('DELETE FROM products WHERE id = $1 AND id_users = $2 RETURNING *', [req.params.id, req.user.id]);
+    // Eliminar las asignaciones del producto en los almacenes
+    await pool.query('DELETE FROM product_locations WHERE product_id = $1', [req.params.id]);
+
+    // Luego, eliminar el producto
+    const deletedProduct = await pool.query(
+      'DELETE FROM products WHERE id = $1 AND id_users = $2 RETURNING *',
+      [req.params.id, req.user.id]
+    );
+
     if (deletedProduct.rows.length === 0) return res.status(404).json({ message: 'Product not found' });
+
     res.status(204).end();
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 // CRUD de almacenes
 app.get('/locations', authenticate, async (req, res) => {
@@ -241,13 +250,30 @@ app.put('/locations/:id', authenticate, async (req, res) => {
 
 app.delete('/locations/:id', authenticate, async (req, res) => {
   try {
-    const deletedLocation = await pool.query('DELETE FROM locations WHERE id_location = $1 AND id_location IN (SELECT id_location FROM users_locations WHERE id_users = $2) RETURNING *', [req.params.id, req.user.id]);
-    if (deletedLocation.rows.length === 0) return res.status(404).json({ message: 'Location not found' });
-    res.status(204).end();
+    const { id } = req.params;
+
+    // Eliminar referencias de product_locations
+    await pool.query('DELETE FROM product_locations WHERE location_id = $1', [id]);
+
+    // Eliminar referencias de users_locations
+    await pool.query('DELETE FROM users_locations WHERE id_location = $1', [id]);
+
+    // Eliminar el almacén
+    const result = await pool.query('DELETE FROM locations WHERE id_location = $1 RETURNING *', [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Location not found' });
+    }
+
+    res.status(204).send();
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error deleting location:', error);
+    res.status(500).json({ error: 'Failed to delete location' });
   }
 });
+
+
+
 
 // Asignar productos a almacenes
 app.post('/locations/:locationId/products/:productId', authenticate, async (req, res) => {
@@ -332,4 +358,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-

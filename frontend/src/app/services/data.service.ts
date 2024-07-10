@@ -21,7 +21,6 @@ export class DataService {
     return this.http.post(`${this.baseUrl}/register`, user);
   }
   
-
   login(usernameOrEmail: string, password: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/login`, { usernameOrEmail, password });
   }
@@ -45,7 +44,7 @@ export class DataService {
     const headers = this.getAuthHeaders();
     return this.http.delete(`${this.baseUrl}/locations/${locationId}`, { headers });
   }
-
+  
   assignProductToLocation(locationId: number, productId: number, quantity: number): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.post(`${this.baseUrl}/locations/${locationId}/products/${productId}`, { quantity }, { headers });
@@ -61,16 +60,15 @@ export class DataService {
     return this.http.get(`${this.baseUrl}/products`, { headers });
   }
 
-  createProduct(product: any): Observable<any> {
+  updateProduct(productId: number, formData: FormData): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.post(`${this.baseUrl}/products`, product, { headers });
-  }
-
-  updateProduct(productId: number, productData: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    return this.http.put(`${this.baseUrl}/products/${productId}`, productData, { headers });
+    return this.http.put(`${this.baseUrl}/products/${productId}`, formData, { headers });
   }
   
+  createProduct(formData: FormData): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.post(`${this.baseUrl}/products`, formData, { headers });
+  }
 
   deleteProduct(productId: number): Observable<any> {
     const headers = this.getAuthHeaders();
@@ -93,9 +91,4 @@ export class DataService {
     url += params.join('&');
     return this.http.get(url, { headers });
   }
-  
-  
-  
-
-  
 }

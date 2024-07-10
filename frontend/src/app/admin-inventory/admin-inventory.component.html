@@ -1,60 +1,59 @@
 <div class="admin-inventory">
   <button class="btn btn-secondary" (click)="goHome()">Back to Home</button>
   <h2>Admin Inventory</h2>
-  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="name">Name</label>
-      <input id="name" formControlName="name" class="form-control" />
+  <div class="inventory-grid">
+    <form [formGroup]="productForm" (ngSubmit)="onSave()" class="crud-form">
+      <div class="form-group">
+        <label for="name">Product Name</label>
+        <input type="text" id="name" formControlName="name" class="form-control" placeholder="Enter product name">
+      </div>
+      <div class="form-group">
+        <label for="brand">Brand</label>
+        <input type="text" id="brand" formControlName="brand" class="form-control" placeholder="Enter brand">
+      </div>
+      <div class="form-group">
+        <label for="reorder_quantity">Reorder Quantity</label>
+        <input type="number" id="reorder_quantity" formControlName="reorder_quantity" class="form-control" placeholder="Enter reorder quantity">
+      </div>
+      <div class="form-group">
+        <label for="supplier">Supplier</label>
+        <input type="text" id="supplier" formControlName="supplier" class="form-control" placeholder="Enter supplier">
+      </div>
+      <div class="form-group">
+        <label for="price">Price</label>
+        <input type="number" id="price" formControlName="price" class="form-control" placeholder="Enter price">
+      </div>
+      <button type="submit" class="btn btn-primary">{{ isEditing ? 'Update' : 'Create' }}</button>
+      <button type="button" class="btn btn-secondary" (click)="resetForm()">Cancel</button>
+    </form>
+    <div class="products-table-container">
+      <div class="products-table">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Brand</th>
+              <th>Reorder Quantity</th>
+              <th>Supplier</th>
+              <th>Price</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of products">
+              <td>{{ product.name }}</td>
+              <td>{{ product.brand }}</td>
+              <td>{{ product.reorder_quantity }}</td>
+              <td>{{ product.supplier }}</td>
+              <td>{{ product.price }}</td>
+              <td>
+                <button (click)="editProduct(product)" class="btn btn-warning">Edit</button>
+                <button (click)="deleteProduct(product.id)" class="btn btn-danger">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="brand">Brand</label>
-      <input id="brand" formControlName="brand" class="form-control" />
-    </div>
-    <div class="form-group">
-      <label for="reorder_quantity">Reorder Quantity</label>
-      <input id="reorder_quantity" formControlName="reorder_quantity" type="number" class="form-control" />
-    </div>
-    <div class="form-group">
-      <label for="image">Image URL</label>
-      <input id="image" formControlName="image" class="form-control" />
-    </div>
-    <div class="form-group">
-      <label for="supplier">Supplier</label>
-      <input id="supplier" formControlName="supplier" class="form-control" />
-    </div>
-    <div class="form-group">
-      <label for="price">Price</label>
-      <input id="price" formControlName="price" type="number" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-primary">{{ isEditing ? 'Update' : 'Create' }}</button>
-    <button type="button" class="btn btn-secondary" (click)="resetForm()">Cancel</button>
-  </form>
-  <hr>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Brand</th>
-        <th>Reorder Quantity</th>
-        <th>Image</th>
-        <th>Supplier</th>
-        <th>Price</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let product of products">
-        <td>{{ product.name }}</td>
-        <td>{{ product.brand }}</td>
-        <td>{{ product.reorder_quantity }}</td>
-        <td><img [src]="product.image" alt="{{ product.name }}" width="50"></td>
-        <td>{{ product.supplier }}</td>
-        <td>{{ product.price | currency }}</td>
-        <td>
-          <button class="btn btn-warning" (click)="editProduct(product)">Edit</button>
-          <button class="btn btn-danger" (click)="deleteProduct(product.id)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  </div>
 </div>

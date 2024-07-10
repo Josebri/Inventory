@@ -1,9 +1,18 @@
 <div class="home-container">
-    <h2>Welcome to Inventory Management</h2>
-    <div class="buttons-container">
-      <button class="btn btn-primary" (click)="navigateTo('/locations')">Manage Locations</button>
-      <button class="btn btn-primary" (click)="navigateTo('/search')">Search Products</button>
-      <button class="btn btn-primary" (click)="navigateTo('/admin')">Manage Products</button>
-    </div>
+  <div class="header">
+      <button class="btn btn-secondary" (click)="logout()">Log out</button>
+      <h2>Welcome to Inventory</h2>
   </div>
-  
+  <div class="content-container">
+      <div class="left-container">
+          <h1>J&A</h1>
+      </div>
+      <div class="right-container">
+          <div class="buttons-container">
+              <button class="btn btn-primary" (click)="navigateTo('/locations')">Manage Locations</button>
+              <button class="btn btn-primary" (click)="navigateTo('/search')">Search Products</button>
+              <button class="btn btn-primary" (click)="navigateTo('/admin')">Manage Products</button>
+          </div>
+      </div>
+  </div>
+</div>

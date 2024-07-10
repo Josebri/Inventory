@@ -13,9 +13,8 @@ import { CommonModule } from '@angular/common';
 })
 export class AdminInventoryComponent implements OnInit {
   productForm: FormGroup;
-  products: any[] = [];
   isEditing = false;
-  currentProductId: number | null = null;
+  products: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -23,12 +22,12 @@ export class AdminInventoryComponent implements OnInit {
     private router: Router
   ) {
     this.productForm = this.fb.group({
+      id: [null],
       name: ['', Validators.required],
-      brand: [''],
-      reorder_quantity: [0, Validators.required],
-      image: [''],
-      supplier: [''],
-      price: [0, Validators.required]
+      brand: ['', Validators.required],
+      reorder_quantity: [0, [Validators.required, Validators.min(0)]],
+      supplier: ['', Validators.required],
+      price: [0, [Validators.required, Validators.min(0)]],
     });
   }
 
@@ -37,32 +36,38 @@ export class AdminInventoryComponent implements OnInit {
   }
 
   loadProducts(): void {
-    this.dataService.getProducts().subscribe((data: any) => {
-      this.products = data;
-    });
+    this.dataService.getProducts().subscribe(
+      (products: any[]) => {
+        this.products = products;
+      },
+      (error: any) => {
+        console.error('Error loading products', error);
+      }
+    );
   }
 
-  onSubmit(): void {
+  onSave(): void {
     if (this.productForm.valid) {
-      const productData = this.productForm.value;
-      if (this.isEditing && this.currentProductId !== null) {
-        this.dataService.updateProduct(this.currentProductId, productData).subscribe(
-          (updatedProduct) => {
-            this.loadProducts();
+      if (this.isEditing) {
+        this.dataService.updateProduct(this.productForm.value.id, this.productForm.value).subscribe(
+          (response) => {
+            console.log('Product updated successfully', response);
             this.resetForm();
+            this.loadProducts();
           },
           (error) => {
-            console.error('Update product failed', error);
+            console.error('Error updating product', error);
           }
         );
       } else {
-        this.dataService.createProduct(productData).subscribe(
-          (newProduct) => {
-            this.products.push(newProduct);
+        this.dataService.createProduct(this.productForm.value).subscribe(
+          (response) => {
+            console.log('Product created successfully', response);
             this.resetForm();
+            this.loadProducts();
           },
           (error) => {
-            console.error('Create product failed', error);
+            console.error('Error creating product', error);
           }
         );
       }
@@ -71,32 +76,24 @@ export class AdminInventoryComponent implements OnInit {
 
   editProduct(product: any): void {
     this.isEditing = true;
-    this.currentProductId = product.id;
     this.productForm.patchValue(product);
   }
 
   deleteProduct(productId: number): void {
     this.dataService.deleteProduct(productId).subscribe(
-      () => {
-        this.products = this.products.filter((product) => product.id !== productId);
+      (response) => {
+        console.log('Product deleted successfully', response);
+        this.loadProducts();
       },
       (error) => {
-        console.error('Delete product failed', error);
+        console.error('Error deleting product', error);
       }
     );
   }
 
   resetForm(): void {
     this.isEditing = false;
-    this.currentProductId = null;
-    this.productForm.reset({
-      name: '',
-      brand: '',
-      reorder_quantity: 0,
-      image: '',
-      supplier: '',
-      price: 0
-    });
+    this.productForm.reset();
   }
 
   goHome(): void {
